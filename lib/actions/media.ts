@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 import { media, playlistTrack } from '@/lib/db/schema'
 import { and, desc, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
+import { fileUrl } from '@/lib/format'
 
 export async function getMedia(stationId?: number) {
   const userId = await getUserId()
@@ -13,7 +14,12 @@ export async function getMedia(stationId?: number) {
     stationId !== undefined
       ? and(eq(media.userId, userId), eq(media.stationId, stationId))
       : eq(media.userId, userId)
-  return db.select().from(media).where(where).orderBy(desc(media.createdAt))
+  const rows = await db
+    .select()
+    .from(media)
+    .where(where)
+    .orderBy(desc(media.createdAt))
+  return rows.map((m) => ({ ...m, streamUrl: fileUrl(m.url) }))
 }
 
 export async function createMedia(input: {

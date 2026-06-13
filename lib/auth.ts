@@ -17,6 +17,10 @@ const trustedOrigins = [
   vercelUrl,
   vercelProductionUrl,
   process.env.BETTER_AUTH_URL,
+  // v0 preview iframes are served from these wildcard domains.
+  'https://*.vusercontent.net',
+  'https://*.v0.app',
+  'https://*.vercel.app',
 ].filter((url): url is string => Boolean(url))
 
 export const auth = betterAuth({
