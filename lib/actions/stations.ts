@@ -64,8 +64,6 @@ export async function createStation(input: {
     genre: input.genre || null,
     frequency: input.frequency || null,
     isPublic: input.isPublic,
-    listeners: Math.floor(Math.random() * 40),
-    peakListeners: Math.floor(Math.random() * 120) + 40,
   })
   revalidatePath('/stations')
   revalidatePath('/')

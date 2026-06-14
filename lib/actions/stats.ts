@@ -12,8 +12,6 @@ export async function getDashboardStats() {
     .select({
       total: sql<number>`count(*)::int`,
       online: sql<number>`count(*) filter (where "isEnabled" = true)::int`,
-      listeners: sql<number>`coalesce(sum("listeners"), 0)::int`,
-      peak: sql<number>`coalesce(max("peakListeners"), 0)::int`,
     })
     .from(station)
     .where(eq(station.userId, userId))
@@ -39,8 +37,6 @@ export async function getDashboardStats() {
   return {
     totalStations: stationStats?.total ?? 0,
     onlineStations: stationStats?.online ?? 0,
-    totalListeners: stationStats?.listeners ?? 0,
-    peakListeners: stationStats?.peak ?? 0,
     totalTracks: mediaStats?.tracks ?? 0,
     librarySeconds: mediaStats?.seconds ?? 0,
     totalPlaylists: playlistStats?.total ?? 0,

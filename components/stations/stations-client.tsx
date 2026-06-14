@@ -19,12 +19,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   MoreVertical,
-  Play,
+  Headphones,
   Plus,
   Radio,
   Pencil,
   Trash2,
-  Users,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -51,7 +50,7 @@ export function StationsClient({
   tracksByStation: Record<number, Track[]>
 }) {
   const router = useRouter()
-  const { playQueue } = usePlayer()
+  const { tuneIn, station: tuned } = usePlayer()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<StationRow | undefined>()
 
@@ -157,10 +156,6 @@ export function StationsClient({
                     <Badge variant="secondary">
                       {s.playlistCount} playlists
                     </Badge>
-                    <Badge variant="outline" className="gap-1">
-                      <Users className="size-3" />
-                      {s.listeners}
-                    </Badge>
                     {s.isPublic ? (
                       <Badge variant="outline">Public</Badge>
                     ) : (
@@ -181,12 +176,17 @@ export function StationsClient({
                     </div>
                     <Button
                       size="sm"
-                      variant="secondary"
-                      disabled={tracks.length === 0}
-                      onClick={() => playQueue(tracks)}
+                      variant={tuned?.id === s.id ? 'default' : 'secondary'}
+                      disabled={tracks.length === 0 || !s.isEnabled}
+                      onClick={() =>
+                        tuneIn(
+                          { id: s.id, name: s.name, shortcode: s.shortcode },
+                          tracks,
+                        )
+                      }
                     >
-                      <Play className="size-3.5" />
-                      Play
+                      <Headphones className="size-3.5" />
+                      {tuned?.id === s.id ? 'Tuned in' : 'Listen'}
                     </Button>
                   </div>
                 </div>

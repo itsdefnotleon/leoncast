@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePlayer, type Track } from '@/components/player/player-provider'
 import { Button } from '@/components/ui/button'
-import { Play, Radio } from 'lucide-react'
+import { Radio, Headphones } from 'lucide-react'
 
 type StationRow = {
   id: number
@@ -11,7 +11,6 @@ type StationRow = {
   shortcode: string
   genre: string | null
   isEnabled: boolean
-  listeners: number
   trackCount: number
 }
 
@@ -22,11 +21,11 @@ export function StationStatusList({
   stations: StationRow[]
   tracksByStation: Record<number, Track[]>
 }) {
-  const { playQueue } = usePlayer()
+  const { tuneIn, station: tuned } = usePlayer()
 
   if (stations.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card p-10 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card p-10 text-center">
         <Radio className="size-8 text-muted-foreground" />
         <div>
           <p className="text-sm font-medium">No stations yet</p>
@@ -47,6 +46,7 @@ export function StationStatusList({
       <ul className="flex flex-col divide-y divide-border">
         {stations.map((s) => {
           const tracks = tracksByStation[s.id] ?? []
+          const isTuned = tuned?.id === s.id
           return (
             <li
               key={s.id}
@@ -61,18 +61,23 @@ export function StationStatusList({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{s.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {s.genre ?? 'Various'} · {s.listeners} listening ·{' '}
-                  {s.trackCount} tracks
+                  {s.genre ?? 'Various'} · {s.trackCount} tracks ·{' '}
+                  {s.isEnabled ? 'On air' : 'Offline'}
                 </p>
               </div>
               <Button
-                variant="secondary"
+                variant={isTuned ? 'default' : 'secondary'}
                 size="sm"
-                disabled={tracks.length === 0}
-                onClick={() => playQueue(tracks)}
+                disabled={tracks.length === 0 || !s.isEnabled}
+                onClick={() =>
+                  tuneIn(
+                    { id: s.id, name: s.name, shortcode: s.shortcode },
+                    tracks,
+                  )
+                }
               >
-                <Play className="size-3.5" />
-                Play
+                <Headphones className="size-3.5" />
+                {isTuned ? 'Tuned in' : 'Listen'}
               </Button>
             </li>
           )

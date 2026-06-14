@@ -19,44 +19,86 @@ export type Track = {
   duration: number
 }
 
+export type StationInfo = {
+  id: number
+  name: string
+  shortcode: string
+}
+
 type PlayerContextValue = {
-  queue: Track[]
+  station: StationInfo | null
   current: Track | null
-  index: number
   isPlaying: boolean
+  /** Seconds into the current track. Display only — live radio is not seekable. */
   progress: number
   duration: number
   volume: number
-  playQueue: (tracks: Track[], startIndex?: number) => void
-  playTrack: (track: Track) => void
+  /** True when a station is tuned in (whether or not audio is actively playing). */
+  isLive: boolean
+  /** Tune into a station's live broadcast at the current on-air position. */
+  tuneIn: (station: StationInfo, tracks: Track[]) => void
+  /** Pause/resume. Resuming re-syncs to the live on-air position. */
   togglePlay: () => void
-  next: () => void
-  prev: () => void
-  seek: (time: number) => void
+  /** Leave the broadcast entirely. */
+  stop: () => void
   setVolume: (v: number) => void
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null)
 
+/**
+ * Determine which track is "on air" right now and how far into it we are,
+ * by laying the playlist end-to-end on an infinite loop anchored to the
+ * absolute Unix clock. Every listener computes the same answer, so everyone
+ * hears the same thing at the same moment — just like a real broadcast.
+ */
+function computeLivePosition(tracks: Track[]): { index: number; offset: number } {
+  const total = tracks.reduce((sum, t) => sum + (t.duration || 0), 0)
+  if (total <= 0) return { index: 0, offset: 0 }
+  let elapsed = (Date.now() / 1000) % total
+  for (let i = 0; i < tracks.length; i++) {
+    const d = tracks[i].duration || 0
+    if (elapsed < d) return { index: i, offset: elapsed }
+    elapsed -= d
+  }
+  return { index: 0, offset: 0 }
+}
+
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [queue, setQueue] = useState<Track[]>([])
+  const tracksRef = useRef<Track[]>([])
+  const offsetRef = useRef(0)
+
+  const [station, setStation] = useState<StationInfo | null>(null)
+  const [tracks, setTracks] = useState<Track[]>([])
   const [index, setIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolumeState] = useState(0.8)
 
-  const current = queue[index] ?? null
+  const current = tracks[index] ?? null
+  const isLive = station !== null && tracks.length > 0
 
   useEffect(() => {
-    audioRef.current = new Audio()
-    const audio = audioRef.current
+    tracksRef.current = tracks
+  }, [tracks])
+
+  useEffect(() => {
+    const audio = new Audio()
+    audioRef.current = audio
     audio.volume = volume
 
     const onTime = () => setProgress(audio.currentTime)
     const onMeta = () => setDuration(audio.duration || 0)
-    const onEnd = () => setIndex((i) => i + 1)
+    const onEnd = () => {
+      // Continuous broadcast: roll straight into the next track, looping.
+      offsetRef.current = 0
+      setIndex((i) => {
+        const len = tracksRef.current.length
+        return len > 0 ? (i + 1) % len : 0
+      })
+    }
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
 
@@ -77,55 +119,78 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Load the current track when index/queue changes.
+  // Load and play the on-air track whenever it changes.
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
-    if (!current) {
-      audio.pause()
-      return
-    }
+    if (!audio || !current) return
+
     audio.src = fileUrl(current.url)
     audio.load()
-    audio.play().catch(() => setIsPlaying(false))
+
+    const seekOffset = offsetRef.current
+    offsetRef.current = 0
+
+    const onReady = () => {
+      if (seekOffset > 0 && seekOffset < (audio.duration || Infinity)) {
+        try {
+          audio.currentTime = seekOffset
+        } catch {
+          // ignore seek errors on some browsers
+        }
+      }
+      audio.play().catch(() => setIsPlaying(false))
+      audio.removeEventListener('canplay', onReady)
+    }
+    audio.addEventListener('canplay', onReady)
+
+    return () => audio.removeEventListener('canplay', onReady)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current?.id])
 
-  const playQueue = useCallback((tracks: Track[], startIndex = 0) => {
-    if (tracks.length === 0) return
-    setQueue(tracks)
+  const tuneIn = useCallback((nextStation: StationInfo, nextTracks: Track[]) => {
+    if (nextTracks.length === 0) return
+    const { index: startIndex, offset } = computeLivePosition(nextTracks)
+    offsetRef.current = offset
+    setStation(nextStation)
+    setTracks(nextTracks)
     setIndex(startIndex)
   }, [])
 
-  const playTrack = useCallback((track: Track) => {
-    setQueue([track])
+  const stop = useCallback(() => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.pause()
+      audio.removeAttribute('src')
+      audio.load()
+    }
+    setStation(null)
+    setTracks([])
     setIndex(0)
+    setProgress(0)
+    setDuration(0)
   }, [])
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current
-    if (!audio || !current) return
-    if (audio.paused) audio.play().catch(() => {})
-    else audio.pause()
-  }, [current])
-
-  const next = useCallback(() => {
-    setIndex((i) => (i < queue.length - 1 ? i + 1 : i))
-  }, [queue.length])
-
-  const prev = useCallback(() => {
-    const audio = audioRef.current
-    if (audio && audio.currentTime > 3) {
-      audio.currentTime = 0
+    if (!audio || tracksRef.current.length === 0) return
+    if (!audio.paused) {
+      audio.pause()
       return
     }
-    setIndex((i) => (i > 0 ? i - 1 : i))
-  }, [])
-
-  const seek = useCallback((time: number) => {
-    const audio = audioRef.current
-    if (audio) audio.currentTime = time
-  }, [])
+    // Resuming a live stream snaps back to the current on-air position.
+    const { index: liveIndex, offset } = computeLivePosition(tracksRef.current)
+    offsetRef.current = offset
+    if (liveIndex === index) {
+      try {
+        audio.currentTime = offset
+      } catch {
+        // ignore
+      }
+      audio.play().catch(() => setIsPlaying(false))
+    } else {
+      setIndex(liveIndex)
+    }
+  }, [index])
 
   const setVolume = useCallback((v: number) => {
     setVolumeState(v)
@@ -134,35 +199,29 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({
-      queue,
+      station,
       current,
-      index,
       isPlaying,
       progress,
       duration,
       volume,
-      playQueue,
-      playTrack,
+      isLive,
+      tuneIn,
       togglePlay,
-      next,
-      prev,
-      seek,
+      stop,
       setVolume,
     }),
     [
-      queue,
+      station,
       current,
-      index,
       isPlaying,
       progress,
       duration,
       volume,
-      playQueue,
-      playTrack,
+      isLive,
+      tuneIn,
       togglePlay,
-      next,
-      prev,
-      seek,
+      stop,
       setVolume,
     ],
   )

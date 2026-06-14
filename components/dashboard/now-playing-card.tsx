@@ -3,7 +3,7 @@
 import { usePlayer } from '@/components/player/player-provider'
 import { formatDuration } from '@/lib/format'
 import { Button } from '@/components/ui/button'
-import { Pause, Play, Radio } from 'lucide-react'
+import { Pause, Play, Radio, Square } from 'lucide-react'
 
 function Equalizer({ active }: { active: boolean }) {
   return (
@@ -26,7 +26,8 @@ function Equalizer({ active }: { active: boolean }) {
 }
 
 export function NowPlayingCard() {
-  const { current, isPlaying, progress, duration, togglePlay } = usePlayer()
+  const { station, current, isPlaying, progress, duration, isLive, togglePlay, stop } =
+    usePlayer()
   const pct = duration > 0 ? (progress / duration) * 100 : 0
 
   return (
@@ -46,7 +47,7 @@ export function NowPlayingCard() {
             />
           </span>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {isPlaying ? 'On Air' : 'Standby'}
+            {isLive ? (isPlaying ? 'On Air' : 'Paused') : 'Off Air'}
           </span>
         </div>
         <Equalizer active={isPlaying} />
@@ -58,21 +59,36 @@ export function NowPlayingCard() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-semibold">
-            {current ? current.title : 'No active broadcast'}
+            {current ? current.title : 'No station tuned in'}
           </p>
           <p className="truncate text-sm text-muted-foreground">
-            {current?.artist ?? 'Press play on a track or playlist to go live'}
+            {isLive
+              ? `${current?.artist ?? 'Unknown artist'} · ${station?.name}`
+              : 'Tune into a station below to listen live'}
           </p>
         </div>
-        <Button
-          size="icon"
-          onClick={togglePlay}
-          disabled={!current}
-          className="size-12 shrink-0 rounded-full"
-          aria-label={isPlaying ? 'Pause broadcast' : 'Start broadcast'}
-        >
-          {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
-        </Button>
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            size="icon"
+            onClick={togglePlay}
+            disabled={!isLive}
+            className="size-12 rounded-full"
+            aria-label={isPlaying ? 'Pause' : 'Resume live'}
+          >
+            {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
+          </Button>
+          {isLive ? (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={stop}
+              className="size-10"
+              aria-label="Stop listening"
+            >
+              <Square className="size-4" />
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
