@@ -146,10 +146,9 @@ export function MediaClient({
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" className="size-8">
+                        <button type="button" className="inline-flex items-center justify-center rounded-md hover:bg-accent p-2 transition-colors size-8" aria-label="Actions">
                           <Trash2 className="size-4" />
-                          <span className="sr-only">Actions</span>
-                        </Button>
+                        </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem

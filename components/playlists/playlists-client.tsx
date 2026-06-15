@@ -103,10 +103,9 @@ export function PlaylistsClient({
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost" className="size-8">
+                      <button type="button" className="inline-flex items-center justify-center rounded-md hover:bg-accent p-2 transition-colors size-8" aria-label="Playlist actions">
                         <MoreVertical className="size-4" />
-                        <span className="sr-only">Playlist actions</span>
-                      </Button>
+                      </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => setManaging(pl)}>

@@ -124,10 +124,9 @@ export function StationsClient({
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <button type="button" className="inline-flex items-center justify-center rounded-md hover:bg-accent p-2 transition-colors" aria-label="Station options">
                           <MoreVertical className="size-4" />
-                          <span className="sr-only">Station options</span>
-                        </Button>
+                        </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => openEdit(s)}>
