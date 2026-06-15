@@ -122,49 +122,48 @@ export function MediaClient({
                       <span className="text-xs text-muted-foreground">{m.artist ?? "Unknown"}</span>
                     </div>
                   </TableCell>
-                    <TableCell className="hidden md:table-cell text-muted-foreground">
-                      {m.album ?? "—"}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {m.genre ? (
-                        <Badge variant="secondary" className="font-normal">
-                          {m.genre}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-right tabular-nums text-muted-foreground">
-                      {formatDuration(m.duration)}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-right tabular-nums text-muted-foreground">
-                      {formatFileSize(m.fileSize)}
-                    </TableCell>
-                    <TableCell className="hidden xl:table-cell text-right tabular-nums text-muted-foreground">
-                      {m.playCount}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="icon" variant="ghost" className="size-8">
-                            <Trash2 className="size-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => handleDelete(m.id)}
-                          >
-                            <Trash2 className="size-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
+                  <TableCell className="hidden md:table-cell text-muted-foreground">
+                    {m.album ?? "—"}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {m.genre ? (
+                      <Badge variant="secondary" className="font-normal">
+                        {m.genre}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-right tabular-nums text-muted-foreground">
+                    {formatDuration(m.duration)}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-right tabular-nums text-muted-foreground">
+                    {formatFileSize(m.fileSize)}
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell text-right tabular-nums text-muted-foreground">
+                    {m.playCount}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="size-8">
+                          <Trash2 className="size-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => handleDelete(m.id)}
+                        >
+                          <Trash2 className="size-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}
