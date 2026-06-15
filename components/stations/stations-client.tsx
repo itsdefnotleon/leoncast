@@ -123,7 +123,7 @@ export function StationsClient({
                       </div>
                     </div>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <button type="button" className="inline-flex items-center justify-center rounded-md hover:bg-accent p-2 transition-colors" aria-label="Station options">
                           <MoreVertical className="size-4" />
                         </button>
