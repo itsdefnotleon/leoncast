@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   deleteStation,
@@ -24,6 +25,7 @@ import {
   Radio,
   Pencil,
   Trash2,
+  LayoutDashboard,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -110,18 +112,23 @@ export function StationsClient({
                   className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                    <Link
+                      href={`/stations/${s.id}`}
+                      className="group flex min-w-0 items-center gap-3"
+                    >
                       <div className="flex size-11 items-center justify-center rounded-lg bg-secondary">
                         <Radio className="size-5 text-primary" />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate font-semibold">{s.name}</p>
+                        <p className="truncate font-semibold transition-colors group-hover:text-primary">
+                          {s.name}
+                        </p>
                         <p className="truncate text-xs text-muted-foreground">
                           {s.frequency ? `${s.frequency} · ` : ''}
                           {s.genre ?? 'Various'}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-8">
@@ -130,6 +137,12 @@ export function StationsClient({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => router.push(`/stations/${s.id}`)}
+                        >
+                          <LayoutDashboard className="size-4" />
+                          Open dashboard
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(s)}>
                           <Pencil className="size-4" />
                           Edit

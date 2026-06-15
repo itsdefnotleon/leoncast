@@ -6,8 +6,12 @@ import { playlist, schedule, station } from '@/lib/db/schema'
 import { and, asc, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
-export async function getSchedules() {
+export async function getSchedules(stationId?: number) {
   const userId = await getUserId()
+  const where =
+    stationId !== undefined
+      ? and(eq(schedule.userId, userId), eq(schedule.stationId, stationId))
+      : eq(schedule.userId, userId)
   return db
     .select({
       id: schedule.id,
@@ -24,7 +28,7 @@ export async function getSchedules() {
     .from(schedule)
     .innerJoin(station, eq(schedule.stationId, station.id))
     .innerJoin(playlist, eq(schedule.playlistId, playlist.id))
-    .where(eq(schedule.userId, userId))
+    .where(where)
     .orderBy(asc(schedule.dayOfWeek), asc(schedule.startTime))
 }
 

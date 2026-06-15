@@ -43,3 +43,38 @@ export async function getDashboardStats() {
     activeShows: scheduleStats?.total ?? 0,
   }
 }
+
+export async function getStationStats(stationId: number) {
+  const userId = await getUserId()
+
+  const [mediaStats] = await db
+    .select({
+      tracks: sql<number>`count(*)::int`,
+      seconds: sql<number>`coalesce(sum("duration"), 0)::int`,
+    })
+    .from(media)
+    .where(and(eq(media.userId, userId), eq(media.stationId, stationId)))
+
+  const [playlistStats] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(playlist)
+    .where(and(eq(playlist.userId, userId), eq(playlist.stationId, stationId)))
+
+  const [scheduleStats] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(schedule)
+    .where(
+      and(
+        eq(schedule.userId, userId),
+        eq(schedule.stationId, stationId),
+        eq(schedule.isEnabled, true),
+      ),
+    )
+
+  return {
+    totalTracks: mediaStats?.tracks ?? 0,
+    librarySeconds: mediaStats?.seconds ?? 0,
+    totalPlaylists: playlistStats?.total ?? 0,
+    activeShows: scheduleStats?.total ?? 0,
+  }
+}

@@ -58,13 +58,18 @@ export function StationStatusList({
                 }`}
                 aria-hidden
               />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{s.name}</p>
+              <Link
+                href={`/stations/${s.id}`}
+                className="group min-w-0 flex-1"
+              >
+                <p className="truncate text-sm font-medium transition-colors group-hover:text-primary">
+                  {s.name}
+                </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {s.genre ?? 'Various'} · {s.trackCount} tracks ·{' '}
                   {s.isEnabled ? 'On air' : 'Offline'}
                 </p>
-              </div>
+              </Link>
               <Button
                 variant={isTuned ? 'default' : 'secondary'}
                 size="sm"
