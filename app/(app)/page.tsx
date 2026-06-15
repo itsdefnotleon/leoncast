@@ -24,7 +24,7 @@ export default async function DashboardPage() {
       id: m.id,
       title: m.title,
       artist: m.artist,
-      url: m.url,
+      url: m.streamUrl,
       duration: m.duration,
     }
     tracksByStation[m.stationId] ??= []

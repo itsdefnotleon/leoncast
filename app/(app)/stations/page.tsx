@@ -18,7 +18,7 @@ export default async function StationsPage() {
       id: m.id,
       title: m.title,
       artist: m.artist,
-      url: m.url,
+      url: m.streamUrl,
       duration: m.duration,
     })
   }

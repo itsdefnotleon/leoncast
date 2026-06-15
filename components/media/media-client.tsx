@@ -24,7 +24,7 @@ import { UploadDialog } from "@/components/media/upload-dialog"
 import { usePlayer, type Track } from "@/components/player/player-provider"
 import { deleteMedia } from "@/lib/actions/media"
 import { formatDuration, formatFileSize } from "@/lib/format"
-import { Play, MoreVertical, Trash2, Search, Music, ListPlus } from "lucide-react"
+import { Play, MoreVertical, Trash2, Search, Music, ListPlus, Upload } from "lucide-react"
 import { toast } from "sonner"
 
 export type MediaItem = {
@@ -52,6 +52,7 @@ export function MediaClient({
   const router = useRouter()
   const player = usePlayer()
   const [query, setQuery] = useState("")
+  const [uploadOpen, setUploadOpen] = useState(false)
 
   const filtered = media.filter((m) => {
     const q = query.toLowerCase()
@@ -112,9 +113,18 @@ export function MediaClient({
             <ListPlus className="size-4" />
             Queue all
           </Button>
-          <UploadDialog stations={stations} />
+          <Button onClick={() => setUploadOpen(true)} className="font-semibold">
+            <Upload className="size-4" />
+            Upload
+          </Button>
         </div>
       </div>
+
+      <UploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        stations={stations}
+      />
 
       <Card className="overflow-hidden">
         {filtered.length === 0 ? (
@@ -128,6 +138,10 @@ export function MediaClient({
                 Upload audio files to build your media library.
               </p>
             </div>
+            <Button onClick={() => setUploadOpen(true)}>
+              <Upload className="size-4" />
+              Upload media
+            </Button>
           </div>
         ) : (
           <Table>

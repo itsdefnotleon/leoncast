@@ -26,7 +26,7 @@ function Equalizer({ active }: { active: boolean }) {
 }
 
 export function NowPlayingCard() {
-  const { station, current, isPlaying, progress, duration, isLive, togglePlay, stop } =
+  const { station, current, isPlaying, progress, duration, isLive, isActive, togglePlay, stop } =
     usePlayer()
   const pct = duration > 0 ? (progress / duration) * 100 : 0
 
@@ -47,7 +47,13 @@ export function NowPlayingCard() {
             />
           </span>
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {isLive ? (isPlaying ? 'On Air' : 'Paused') : 'Off Air'}
+            {isActive
+              ? isPlaying
+                ? isLive
+                  ? 'On Air'
+                  : 'Playing'
+                : 'Paused'
+              : 'Off Air'}
           </span>
         </div>
         <Equalizer active={isPlaying} />
@@ -62,8 +68,10 @@ export function NowPlayingCard() {
             {current ? current.title : 'No station tuned in'}
           </p>
           <p className="truncate text-sm text-muted-foreground">
-            {isLive
-              ? `${current?.artist ?? 'Unknown artist'} · ${station?.name}`
+            {isActive
+              ? isLive
+                ? `${current?.artist ?? 'Unknown artist'} · ${station?.name}`
+                : (current?.artist ?? 'Unknown artist')
               : 'Tune into a station below to listen live'}
           </p>
         </div>
@@ -71,13 +79,13 @@ export function NowPlayingCard() {
           <Button
             size="icon"
             onClick={togglePlay}
-            disabled={!isLive}
+            disabled={!isActive}
             className="size-12 rounded-full"
             aria-label={isPlaying ? 'Pause' : 'Resume live'}
           >
             {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
           </Button>
-          {isLive ? (
+          {isActive ? (
             <Button
               size="icon"
               variant="ghost"

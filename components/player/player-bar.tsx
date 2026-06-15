@@ -15,6 +15,7 @@ export function PlayerBar() {
     duration,
     volume,
     isLive,
+    isActive,
     togglePlay,
     stop,
     setVolume,
@@ -46,8 +47,10 @@ export function PlayerBar() {
             </p>
           </div>
           <p className="truncate text-xs text-muted-foreground">
-            {isLive
-              ? `${current?.artist ?? 'Unknown artist'} · ${station?.name}`
+            {isActive
+              ? isLive
+                ? `${current?.artist ?? 'Unknown artist'} · ${station?.name}`
+                : (current?.artist ?? 'Unknown artist')
               : 'Tune into a station to start listening'}
           </p>
         </div>
@@ -59,7 +62,7 @@ export function PlayerBar() {
           <Button
             size="icon"
             onClick={togglePlay}
-            disabled={!isLive}
+            disabled={!isActive}
             className="size-10 rounded-full"
             aria-label={isPlaying ? 'Pause' : 'Resume live'}
           >
@@ -73,7 +76,7 @@ export function PlayerBar() {
             variant="ghost"
             size="icon"
             onClick={stop}
-            disabled={!isLive}
+            disabled={!isActive}
             aria-label="Stop listening"
           >
             <Square className="size-4" />
