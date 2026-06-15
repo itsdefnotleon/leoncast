@@ -21,10 +21,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { UploadDialog } from "@/components/media/upload-dialog"
-import { usePlayer, type Track } from "@/components/player/player-provider"
 import { deleteMedia } from "@/lib/actions/media"
 import { formatDuration, formatFileSize } from "@/lib/format"
-import { Play, MoreVertical, Trash2, Search, Music, ListPlus } from "lucide-react"
+import { Trash2, Music, Search } from "lucide-react"
 import { toast } from "sonner"
 
 export type MediaItem = {
@@ -50,7 +49,6 @@ export function MediaClient({
   stations: StationOption[]
 }) {
   const router = useRouter()
-  const player = usePlayer()
   const [query, setQuery] = useState("")
 
   const filtered = media.filter((m) => {
@@ -61,29 +59,6 @@ export function MediaClient({
       (m.album ?? "").toLowerCase().includes(q)
     )
   })
-
-  function toTrack(m: MediaItem): Track {
-    return {
-      id: m.id,
-      title: m.title,
-      artist: m.artist ?? "Unknown Artist",
-      duration: m.duration,
-      url: m.streamUrl,
-    }
-  }
-
-  function playNow(m: MediaItem) {
-    player.playQueue(
-      filtered.map(toTrack),
-      filtered.findIndex((x) => x.id === m.id),
-    )
-  }
-
-  function queueAll() {
-    if (filtered.length === 0) return
-    player.setQueue(filtered.map(toTrack))
-    toast.success(`Queued ${filtered.length} tracks`)
-  }
 
   async function handleDelete(id: number) {
     const res = await deleteMedia(id)
@@ -108,10 +83,6 @@ export function MediaClient({
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={queueAll} disabled={filtered.length === 0}>
-            <ListPlus className="size-4" />
-            Queue all
-          </Button>
           <UploadDialog stations={stations} />
         </div>
       </div>
@@ -133,7 +104,6 @@ export function MediaClient({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10" />
                 <TableHead>Title</TableHead>
                 <TableHead className="hidden md:table-cell">Album</TableHead>
                 <TableHead className="hidden lg:table-cell">Genre</TableHead>
@@ -144,34 +114,14 @@ export function MediaClient({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((m) => {
-                const isCurrent = player.current?.id === m.id
-                return (
-                  <TableRow key={m.id} data-active={isCurrent} className="data-[active=true]:bg-accent/5">
-                    <TableCell>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="size-8 text-muted-foreground hover:text-accent"
-                        onClick={() => playNow(m)}
-                        aria-label={`Play ${m.title}`}
-                      >
-                        <Play className="size-4" />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span
-                          className="font-medium leading-tight data-[active=true]:text-accent"
-                          data-active={isCurrent}
-                        >
-                          {m.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {m.artist ?? "Unknown Artist"}
-                        </span>
-                      </div>
-                    </TableCell>
+              {filtered.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium leading-tight">{m.title}</span>
+                      <span className="text-xs text-muted-foreground">{m.artist ?? "Unknown"}</span>
+                    </div>
+                  </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">
                       {m.album ?? "—"}
                     </TableCell>
@@ -197,15 +147,11 @@ export function MediaClient({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button size="icon" variant="ghost" className="size-8">
-                            <MoreVertical className="size-4" />
-                            <span className="sr-only">Track actions</span>
+                            <Trash2 className="size-4" />
+                            <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => playNow(m)}>
-                            <Play className="size-4" />
-                            Play now
-                          </DropdownMenuItem>
                           <DropdownMenuItem
                             variant="destructive"
                             onClick={() => handleDelete(m.id)}
