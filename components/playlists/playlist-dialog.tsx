@@ -62,19 +62,19 @@ export function PlaylistDialog({ stations }: { stations: StationOption[] }) {
     toast.success("Playlist created")
     setOpen(false)
     setName("")
-    setType("general")
-    setPlayMode("shuffle")
     setWeight(3)
+    setPlayMode("shuffle")
+    setType("general")
     router.refresh()
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={stations.length === 0}>
-          <Plus className="size-4" />
+      <DialogTrigger>
+        <button type="button" className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:bg-accent/90 transition-colors">
+          <Plus className="size-4 mr-2" />
           New playlist
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

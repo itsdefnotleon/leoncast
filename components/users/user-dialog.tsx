@@ -54,11 +54,11 @@ export function UserDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <UserPlus className="size-4" />
+      <DialogTrigger>
+        <button type="button" className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:bg-accent/90 transition-colors">
+          <UserPlus className="size-4 mr-2" />
           New user
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

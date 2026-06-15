@@ -72,20 +72,22 @@ export function ScheduleDialog({
       toast.error(res.error)
       return
     }
-    toast.success("Schedule slot added")
+    toast.success("Schedule created")
     setOpen(false)
     setTitle("")
-    setPlaylistId("")
+    setDayOfWeek("1")
+    setStartTime("09:00")
+    setEndTime("12:00")
     router.refresh()
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={stations.length === 0 || playlists.length === 0}>
-          <Plus className="size-4" />
-          Add slot
-        </Button>
+      <DialogTrigger>
+        <button type="button" className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:bg-accent/90 transition-colors">
+          <Plus className="size-4 mr-2" />
+          New schedule
+        </button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -142,11 +142,11 @@ export function UploadDialog({ stations }: { stations: StationOption[] }) {
         setOpen(v)
       }
     }}>
-      <DialogTrigger asChild>
-        <Button className="font-semibold">
-          <Upload className="size-4" />
+      <DialogTrigger>
+        <button type="button" className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:bg-accent/90 transition-colors">
+          <Upload className="size-4 mr-2" />
           Upload media
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
