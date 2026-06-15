@@ -14,10 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { PlaylistDialog } from "@/components/playlists/playlist-dialog"
 import { TrackManagerDialog } from "@/components/playlists/track-manager-dialog"
-import { togglePlaylist, deletePlaylist, getPlaylistTracks } from "@/lib/actions/playlists"
-import { usePlayer, type Track } from "@/components/player/player-provider"
-import { fileUrl } from "@/lib/format"
-import { ListMusic, MoreVertical, Trash2, Play, Pencil, Shuffle, ArrowDownUp, Dices } from "lucide-react"
+import { togglePlaylist, deletePlaylist } from "@/lib/actions/playlists"
+import { ListMusic, MoreVertical, Trash2, Pencil, Shuffle, ArrowDownUp, Dices } from "lucide-react"
 import { toast } from "sonner"
 
 type Playlist = {
@@ -50,7 +48,6 @@ export function PlaylistsClient({
   media: MediaOption[]
 }) {
   const router = useRouter()
-  const player = usePlayer()
   const [managing, setManaging] = useState<Playlist | null>(null)
 
   const stationName = (id: number) => stations.find((s) => s.id === id)?.name ?? "—"
@@ -68,23 +65,6 @@ export function PlaylistsClient({
     }
     toast.success("Playlist deleted")
     router.refresh()
-  }
-
-  async function handlePlay(pl: Playlist) {
-    const tracks = await getPlaylistTracks(pl.id)
-    if (tracks.length === 0) {
-      toast.error("This playlist has no tracks yet")
-      return
-    }
-    const queue: Track[] = tracks.map((t) => ({
-      id: t.mediaId,
-      title: t.title,
-      artist: t.artist ?? "Unknown Artist",
-      duration: t.duration,
-      url: fileUrl(t.url),
-    }))
-    player.playQueue(queue, 0)
-    toast.success(`Now playing: ${pl.name}`)
   }
 
   return (
@@ -132,10 +112,6 @@ export function PlaylistsClient({
                       <DropdownMenuItem onClick={() => setManaging(pl)}>
                         <Pencil className="size-4" />
                         Manage tracks
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handlePlay(pl)}>
-                        <Play className="size-4" />
-                        Play
                       </DropdownMenuItem>
                       <DropdownMenuItem variant="destructive" onClick={() => handleDelete(pl.id)}>
                         <Trash2 className="size-4" />
