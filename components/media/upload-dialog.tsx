@@ -10,6 +10,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Select,
@@ -19,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { Loader2, UploadCloud, FileAudio, X } from 'lucide-react'
+import { Loader2, UploadCloud, FileAudio, X, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDuration, formatFileSize } from '@/lib/format'
 
@@ -54,17 +55,10 @@ function guessMeta(name: string) {
   return { artist: '', title: base.trim() }
 }
 
-export function UploadDialog({
-  open,
-  onOpenChange,
-  stations,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  stations: StationOption[]
-}) {
+export function UploadDialog({ stations }: { stations: StationOption[] }) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
   const [pending, setPending] = useState<PendingFile[]>([])
   const [stationId, setStationId] = useState<string>('none')
   const [uploading, setUploading] = useState(false)
@@ -136,21 +130,24 @@ export function UploadDialog({
     if (success > 0) {
       toast.success(`Uploaded ${success} track${success > 1 ? 's' : ''}.`)
       reset()
-      onOpenChange(false)
+      setOpen(false)
       router.refresh()
     }
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!uploading) {
-          if (!v) reset()
-          onOpenChange(v)
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={(v) => {
+      if (!uploading) {
+        if (!v) reset()
+        setOpen(v)
+      }
+    }}>
+      <DialogTrigger asChild>
+        <Button className="font-semibold">
+          <Upload className="size-4" />
+          Upload media
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Upload media</DialogTitle>

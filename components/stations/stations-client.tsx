@@ -6,7 +6,7 @@ import {
   deleteStation,
   toggleStation,
 } from '@/lib/actions/stations'
-import { usePlayer, type Track } from '@/components/player/player-provider'
+import { usePlayer } from '@/components/player/player-provider'
 import { StationDialog } from '@/components/stations/station-dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -47,7 +47,7 @@ export function StationsClient({
   tracksByStation,
 }: {
   stations: StationRow[]
-  tracksByStation: Record<number, Track[]>
+  tracksByStation: Record<number, any[]>
 }) {
   const router = useRouter()
   const { tuneIn, station: tuned } = usePlayer()
